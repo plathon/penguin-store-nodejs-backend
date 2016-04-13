@@ -13,14 +13,16 @@ var UserSchema = new Schema({
           maxlength: [ 64, 'Very long name' ]
   },
   email: { type: String,
-           required: true
+           unique: true,
+           lowercase: true
   },
   type: { type: String },
   password: { type: String,
-              required: true,
               minlength: [ 3, 'Very short password' ],
               maxlength: [ 64, 'Very long password' ]
-  }
+  },
+  facebook: { type: String },
+  twitter: { type: String }
 });
 
 /**

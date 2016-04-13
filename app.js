@@ -33,6 +33,8 @@ app.use(function *(next){
 //users
 app.use(route.post('/signin', users.auth));
 app.use(route.post('/signup', users.create));
+app.use(route.post('/auth/facebook', users.facebook));
+app.use(route.post('/auth/twitter', users.twitter));
 
 //set auth middleware
 app.use(jwt({ secret: config.secret }));
