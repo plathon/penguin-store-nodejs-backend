@@ -7,8 +7,16 @@
     "start": "node app.js",
     "test": "mocha --harmony"
   },
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plathon/penguin-store-nodejs-backend"
+  },
+  "author": "Renan Plathon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/plathon/penguin-store-nodejs-backend/issues"
+  },
+  "homepage": "https://github.com/plathon/penguin-store-nodejs-backend",
   "dependencies": {
     "co-bcrypt": "^1.0.0",
     "jsonwebtoken": "^5.5.4",
