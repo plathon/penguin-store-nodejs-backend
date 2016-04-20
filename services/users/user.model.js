@@ -13,32 +13,18 @@ var UserSchema = new Schema({
           maxlength: [ 64, 'Very long name' ]
   },
   email: { type: String,
-           unique: true,
+           trim: true,
            lowercase: true
   },
   type: { type: String },
   password: { type: String,
+              select: false,
               minlength: [ 3, 'Very short password' ],
               maxlength: [ 64, 'Very long password' ]
   },
   facebook: { type: String },
   twitter: { type: String }
 });
-
-/**
-* User Virtual Schema
-**/
-
-UserSchema
-  .virtual('withoutPassword')
-  .get(function () {
-    return {
-      _id:   this._id,
-      name: this.name,
-      email: this.email,
-      type: this.type
-    }
-  });
 
 /**
 * Timestamps plugin
@@ -50,5 +36,5 @@ UserSchema.plugin(timestamps);
 * Create and exports model
 **/
 
-var UserModel = mongoose.model('User', UserSchema);
+var UserModel  = mongoose.model('User', UserSchema);
 module.exports = UserModel;

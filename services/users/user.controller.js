@@ -3,7 +3,8 @@ var jwt       = require('jsonwebtoken');
 var config    = require('../../config');
 var UserModel = require('./user.model');
 var request   = require('request-promise');
-var qs        = require('querystring')
+var qs        = require('querystring');
+
 /**
 * autenticate user and return JWT
 **/
@@ -12,7 +13,7 @@ module.exports.auth = function *(){
   try {
     var reqBody = this.request.body;
       //get user by credentials
-      var user = yield UserModel.findOne({email: reqBody.email});
+      var user = yield UserModel.findOne({ email: reqBody.email }).select( '+password' );
 
       if (!user)
         this.throw('User not found.', 400);
@@ -21,7 +22,7 @@ module.exports.auth = function *(){
       if ( yield bcrypt.compare( reqBody.password, user.password ) ) {
 
         //generate JWT
-        var token = jwt.sign(user.withoutPassword, config.secret, { expiresInMinutes: 60*5 });
+        var token = jwt.sign( user, config.secret, { expiresInMinutes: 60*5 } );
         //response
         this.body = {
           msg: 'Successfully logged in.',
@@ -44,8 +45,8 @@ module.exports.auth = function *(){
 
 module.exports.create = function *() {
   try {
-    var reqBody = this.request.body;
-    var userExists = yield UserModel.findOne({email: reqBody.email});
+    var reqBody    = this.request.body;
+    var userExists = yield UserModel.findOne({ email: reqBody.email });
 
     if ( userExists )
       this.throw('User already exists.', 400);
@@ -103,7 +104,7 @@ module.exports.facebook = function *() {
         facebook: profile.id
       })
 
-      var token = jwt.sign( user.withoutPassword, config.secret, { expiresInMinutes: 60*5 } );
+      var token = jwt.sign( user, config.secret, { expiresInMinutes: 60*5 } );
 
       this.body = {
         msg: 'User was successfully created.',
@@ -112,7 +113,7 @@ module.exports.facebook = function *() {
 
     } else {
 
-      var token = jwt.sign( userProfile.withoutPassword, config.secret, { expiresInMinutes: 60*5 } );
+      var token = jwt.sign( userProfile, config.secret, { expiresInMinutes: 60*5 } );
 
       this.body = {
         msg: 'Successfully logged in.',
@@ -122,7 +123,6 @@ module.exports.facebook = function *() {
     }
 
   } catch (err) {
-    console.log(err)
     this.status     = err.status || 500;
     this.body       = { error: { message: err.message } }
     this.app.emit('error', err, this);
@@ -186,7 +186,7 @@ module.exports.twitter = function *() {
           twitter: profileOauthData.id
         })
 
-        var token = jwt.sign( user.withoutPassword, config.secret, { expiresInMinutes: 60*5 } );
+        var token = jwt.sign( user, config.secret, { expiresInMinutes: 60*5 } );
 
         this.body = {
           msg: 'User was successfully created.',
@@ -195,7 +195,7 @@ module.exports.twitter = function *() {
 
       } else {
 
-        var token = jwt.sign( profile.withoutPassword, config.secret, { expiresInMinutes: 60*5 } );
+        var token = jwt.sign( profile, config.secret, { expiresInMinutes: 60*5 } );
 
         this.body = {
           msg: 'Successfully logged in.',
