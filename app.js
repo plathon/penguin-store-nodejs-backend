@@ -44,7 +44,7 @@ app.use(route.post('/auth/twitter', users.twitter));
 //set auth middleware
 app.use(jwt({ secret: config.secret }));
 
-if (env != 'test')
+if (env === 'test')
   module.exports = app.listen(3001);
 else
   app.listen(3001);
