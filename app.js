@@ -5,6 +5,7 @@ var cors       = require('koa-cors');
 var logger     = require('koa-logger');
 var mongoose   = require('mongoose');
 var jwt        = require('koa-jwt');
+require('dotenv').config();
 var config     = require('./config');
 
 mongoose.connect(config.mongo);
