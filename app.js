@@ -1,13 +1,17 @@
 var koa        = require('koa');
+var env        = process.env.NODE_ENV
 var route      = require('koa-route');
 var bodyParser = require('koa-bodyparser');
 var cors       = require('koa-cors');
 var logger     = require('koa-logger');
 var mongoose   = require('mongoose');
 var jwt        = require('koa-jwt');
-require('dotenv').config();
-var config     = require('./config');
 
+if (env === 'development') {
+  require('dotenv').config();
+}
+
+var config     = require('./config');
 mongoose.connect(config.mongo);
 
 var app = koa();

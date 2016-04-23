@@ -4,8 +4,8 @@
   "description": "Penguin store backend example with nodejs",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "mocha --harmony"
+    "start": "NODE_ENV=development node app.js",
+    "test": "NODE_ENV=test mocha --harmony"
   },
   "repository": {
     "type": "git",
