@@ -33,8 +33,8 @@ module.exports.auth = function *(){
         this.throw('Username and password do not match.', 400);
 
   } catch (err) {
-    this.status     = err.status || 500;
-    this.body       = { error: { message: err.message } }
+    this.status = err.status || 500;
+    this.body   = { error: { message: err.message } }
     this.app.emit('error', err, this);
   }
 }
@@ -123,8 +123,8 @@ module.exports.facebook = function *() {
     }
 
   } catch (err) {
-    this.status     = err.status || 500;
-    this.body       = { error: { message: err.message } }
+    this.status = err.status || 500;
+    this.body   = { error: { message: err.message } }
     this.app.emit('error', err, this);
   }
 }
