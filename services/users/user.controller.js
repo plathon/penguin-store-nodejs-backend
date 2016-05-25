@@ -1,4 +1,4 @@
-var bcrypt    = require('co-bcrypt');
+var bcrypt    = require('bcrypt-then');
 var jwt       = require('jsonwebtoken');
 var config    = require('../../config');
 var UserModel = require('./user.model');
@@ -13,7 +13,7 @@ module.exports.auth = function *(){
   try {
     var reqBody = this.request.body;
       //get user by credentials
-      var user = yield UserModel.findOne({ email: reqBody.email }).select( '+password' );
+      var user = yield UserModel.findOne({ email: reqBody.email }).select( 'password' );
 
       if (!user)
         this.throw('User not found.', 400);
@@ -21,8 +21,12 @@ module.exports.auth = function *(){
       //decrypt the password and validate
       if ( yield bcrypt.compare( reqBody.password, user.password ) ) {
 
+        //get user data without password field
+        var userData = yield UserModel.findOne({ email: reqBody.email });
+
         //generate JWT
-        var token = jwt.sign( user, config.secret, { expiresInMinutes: 60*5 } );
+        var token = jwt.sign( userData, config.secret, { expiresInMinutes: 60*5 } );
+
         //response
         this.body = {
           msg: 'Successfully logged in.',
@@ -52,14 +56,17 @@ module.exports.create = function *() {
       this.throw('User already exists.', 400);
 
       //hash the password
-      var salt = yield bcrypt.genSalt(10);
-      var hash = yield bcrypt.hash(reqBody.password, salt);
+      var hash = yield bcrypt.hash(reqBody.password);
       reqBody.password = hash;
 
       //persists user
-      var user = yield UserModel.create(reqBody);
+      var user = yield UserModel.create(reqBody)
+
+      //find created user without password field
+      var userData = yield UserModel.findOne({ email: reqBody.email })
+
       //generate JWT
-      var token = jwt.sign(user.withoutPassword, config.secret, { expiresInMinutes: 60*5 });
+      var token = jwt.sign( userData, config.secret, { expiresInMinutes: 60*5 } );
 
       //response
       this.body = {
