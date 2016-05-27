@@ -25,7 +25,7 @@ module.exports.auth = function *(){
         var userData = yield UserModel.findOne({ email: reqBody.email });
 
         //generate JWT
-        var token = jwt.sign( userData, config.secret, { expiresInMinutes: 60*5 } );
+        var token = jwt.sign( userData.toJSON(), config.secret, { expiresInMinutes: 60*5 } );
 
         //response
         this.body = {
@@ -66,7 +66,7 @@ module.exports.create = function *() {
       var userData = yield UserModel.findOne({ email: reqBody.email })
 
       //generate JWT
-      var token = jwt.sign( userData, config.secret, { expiresInMinutes: 60*5 } );
+      var token = jwt.sign( userData.toJSON(), config.secret, { expiresInMinutes: 60*5 } );
 
       //response
       this.body = {
