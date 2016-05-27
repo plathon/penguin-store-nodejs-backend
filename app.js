@@ -20,7 +20,8 @@ if (env != 'test') app.use(logger())
 app.use(bodyParser());
 app.use(cors());
 
-var users = require('./services/users/user.controller');
+var users  = require('./services/users/user.controller');
+var stores = require('./services/stores/store.controller');
 
 //jwt auth config middleware
 app.use(function *(next){
@@ -35,14 +36,18 @@ app.use(function *(next){
   }
 });
 
+//public routes
 //users
 app.use(route.post('/signin', users.auth));
 app.use(route.post('/signup', users.create));
 app.use(route.post('/auth/facebook', users.facebook));
 app.use(route.post('/auth/twitter', users.twitter));
-
 //set auth middleware
 app.use(jwt({ secret: config.secret }));
+//private routes
+app.use(route.get('/store/find', stores.find));
+app.use(route.post('/store/create', stores.create));
+app.use(route.post('/store/update', stores.update));
 
 if (env === 'test')
   module.exports = app.listen(3001);
