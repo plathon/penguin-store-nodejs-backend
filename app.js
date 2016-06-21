@@ -1,55 +1,66 @@
-var koa        = require('koa');
-var env        = process.env.NODE_ENV
-var route      = require('koa-route');
-var bodyParser = require('koa-bodyparser');
-var cors       = require('koa-cors');
-var logger     = require('koa-logger');
-var mongoose   = require('mongoose');
-var jwt        = require('koa-jwt');
+var restify  = require('restify');
+var mongoose = require('mongoose');
+var env      = process.env.NODE_ENV || 'development';
 
 if (env === 'development') {
   require('dotenv').config();
 }
 
-var config     = require('./config');
+var config   = require('./config/index');
 mongoose.connect(config.mongo);
 
-var app = koa();
-var env = process.env.NODE_ENV || 'development';
-if (env != 'test') app.use(logger())
-app.use(bodyParser());
-app.use(cors());
+//services
+var users        = require('./services/users/user.resources');
+var addresses    = require('./services/addresses/address.resources');
+var stores       = require('./services/stores/store.resources');
+var payments     = require('./services/payments/payment.resources');
+var categories   = require('./services/categories/category.resources');
+var products     = require('./services/products/product.resources');
+var shipping     = require('./services/shipping/shipping.resources');
+var orders       = require('./services/orders/order.resources');
 
-var users  = require('./services/users/user.controller');
-var stores = require('./services/stores/store.controller');
-
-//jwt auth config middleware
-app.use(function *(next){
-  try {
-    yield next;
-  } catch (err) {
-    if (401 == err.status) {
-      this.status = 401;
-      this.body = 'Access denied';
-    } else
-      throw err;
-  }
+//app config
+var server = restify.createServer({
+  name: 'app',
+  version: '1.0.0'
 });
 
-//public routes
-//users
-app.use(route.post('/signin', users.auth));
-app.use(route.post('/signup', users.create));
-app.use(route.post('/auth/facebook', users.facebook));
-app.use(route.post('/auth/twitter', users.twitter));
-//set auth middleware
-app.use(jwt({ secret: config.secret }));
-//private routes
-app.use(route.get('/store/find', stores.find));
-app.use(route.post('/store/create', stores.create));
-app.use(route.post('/store/update', stores.update));
+//middlewares
+restify.CORS.ALLOW_HEADERS.push('authorization');
+server.pre(restify.CORS());
+server.use(restify.fullResponse());
+server.use(restify.acceptParser(server.acceptable));
+server.use(restify.queryParser());
+server.use(restify.bodyParser());
 
-if (env === 'test')
-  module.exports = app.listen(3001);
-else
-  app.listen(3001);
+//routes
+server.post('/users/auth', users.auth);
+server.post('/users/oauth/facebook', users.facebookAuth);
+server.post('/users/oauth/twitter', users.twitterAuth);
+server.post('/users', users.create);
+server.put('/users', users.update);
+server.put('/users/password', users.updatePassword);
+server.get('addresses', addresses.index);
+server.post('addresses', addresses.create);
+server.del('addresses/:id', addresses.delete);
+server.get('store', stores.find);
+server.post('store', stores.create);
+server.put('store', stores.update);
+server.get('payments', payments.index);
+server.post('payments', payments.create);
+server.get('categories', categories.index);
+server.post('categories', categories.create);
+server.del('categories/:id', categories.delete);
+server.get('products', products.index);
+server.post('products', products.create);
+server.put('products', products.update);
+server.del('products/:id', products.delete);
+server.get('shipping', shipping.index);
+server.post('shipping', shipping.create);
+server.put('shipping', shipping.update);
+server.del('shipping/:id', shipping.delete);
+server.get('order', orders.index);
+server.post('order', orders.create);
+
+//start server
+server.listen(3000);
